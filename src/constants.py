@@ -13,7 +13,14 @@ EXPECTED_STATUS = {
 
 MAIN_DOC_URL = 'https://docs.python.org/3/'
 BASE_DIR = Path(__file__).parent
-DATETIME_FORMAT = '%Y-%m-%d_%H-%M-%S'
+LOG_TIMESTAMP_FORMAT = '%Y-%m-%d_%H-%M-%S'
 LOG_FORMAT = '"%(asctime)s - [%(levelname)s] - %(message)s"'
-DT_FORMAT = '%d.%m.%Y %H:%M:%S'
+DISPLAY_DATETIME_FORMAT = '%d.%m.%Y %H:%M:%S'
 PEP_URL = 'https://peps.python.org/'
+PRETTY_OUTPUT = 'pretty'
+FILE_OUTPUT = 'file'
+LOG_DIR_NAME = 'logs'
+LOG_FILE_NAME = 'parser.log'
+OUTPUT_FORMAT_DEFAULT = None
+OUTPUT_FORMAT_FILE = 'file'
+OUTPUT_FORMAT_PRETTY = 'pretty'
