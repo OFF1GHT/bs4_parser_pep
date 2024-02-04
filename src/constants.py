@@ -24,3 +24,4 @@ LOG_FILE_NAME = 'parser.log'
 OUTPUT_FORMAT_DEFAULT = None
 OUTPUT_FORMAT_FILE = 'file'
 OUTPUT_FORMAT_PRETTY = 'pretty'
+RESULTS_DIR = 'results'

@@ -3,11 +3,10 @@ import re
 from urllib.parse import urljoin
 
 import requests_cache
-from bs4 import BeautifulSoup
 from tqdm import tqdm
 from collections import defaultdict
 
-from utils import get_response, find_tag, get_soup
+from utils import find_tag, get_soup
 from outputs import control_output
 from configs import configure_argument_parser, configure_logging
 from constants import BASE_DIR, MAIN_DOC_URL, EXPECTED_STATUS, PEP_URL
@@ -17,38 +16,28 @@ from exceptions import VersionsListNotFoundError
 def whats_new(session):
     whats_new_url = urljoin(MAIN_DOC_URL, 'whatsnew/')
     soup = get_soup(session, whats_new_url)
-    if soup is None:
-        return
     main_div = find_tag(soup, 'section', attrs={'id': 'what-s-new-in-python'})
     div_with_ul = find_tag(main_div, 'div', attrs={'class': 'toctree-wrapper'})
     sections_by_python = div_with_ul.find_all(
         'li', attrs={'class': 'toctree-l1'}
     )
-
     results = [('Ссылка на статью', 'Заголовок', 'Редактор, Автор')]
     for section in tqdm(sections_by_python):
         version_a_tag = section.find('a')
         href = version_a_tag['href']
         version_link = urljoin(whats_new_url, href)
-        response = get_response(session, version_link)
-        if response is None:
-            continue
-        soup = BeautifulSoup(response.text, 'lxml')
+        soup = get_soup(session, version_link)
         h1 = find_tag(soup, 'h1')
         dl = find_tag(soup, 'dl')
         dl_text = dl.text.replace('\n', ' ')
         results.append(
             (version_link, h1.text, dl_text)
         )
-
     return results
 
 
 def latest_versions(session):
     soup = get_soup(session, MAIN_DOC_URL)
-    if soup is None:
-        return
-
     sidebar = find_tag(soup, 'div', {'class': 'sphinxsidebarwrapper'})
     ul_tags = sidebar.find_all('ul')
     for ul in ul_tags:
@@ -57,10 +46,8 @@ def latest_versions(session):
             break
     else:
         raise VersionsListNotFoundError('Не найден список c версиями Python')
-
     results = []
     pattern = r'Python (?P<version>\d\.\d+) \((?P<status>.*)\)'
-
     results = []
     pattern = r'Python (?P<version>\d\.\d+) \((?P<status>.*)\)'
     for a_tag in a_tags:
@@ -78,9 +65,6 @@ def latest_versions(session):
 
 def download(session):
     downloads_url = urljoin(MAIN_DOC_URL, 'download.html')
-    response = get_response(session, downloads_url)
-    if response is None:
-        return
     soup = get_soup(session, downloads_url)
     table_tag = find_tag(soup, 'table', attrs={'class': 'docutils'})
     pdf_a4_tag = find_tag(
@@ -100,25 +84,20 @@ def download(session):
 
 def parse_pep_status(session, pep_number):
     """Получение статуса PEP с его страницы."""
+
     pep_url = f'https://www.python.org/dev/peps/pep-{pep_number}/'
-    response = get_response(session, pep_url)
-
-    if response is None:
-        return None
-
-    soup = BeautifulSoup(response.text, 'html.parser')
+    soup = get_soup(session, pep_url)
     status_tag = soup.find('dt', text='Status')
-
     if status_tag:
         status = status_tag.find_next_sibling('dd')
         if status:
             return status.text.strip()
-
     return None
 
 
 def process_pep_page(session, pep_number, expected_statuses):
     """Обработка информации со страницы PEP."""
+
     url = f'https://www.python.org/dev/peps/pep-{pep_number}/'
     soup = get_soup(session, url)
     table_info = find_tag(
@@ -138,7 +117,6 @@ def pep(session):
     section_tag = find_tag(soup, 'section', attrs={'id': 'numerical-index'})
     tbody_tag = find_tag(section_tag, 'tbody')
     tr_tags = tbody_tag.find_all('tr')
-
     status_sum = defaultdict(int)
 
     total_peps = 0

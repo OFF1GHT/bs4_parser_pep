@@ -7,17 +7,8 @@ import logging
 from constants import (
     BASE_DIR, LOG_TIMESTAMP_FORMAT,
     OUTPUT_FORMAT_PRETTY, OUTPUT_FORMAT_FILE,
-    OUTPUT_FORMAT_DEFAULT
+    OUTPUT_FORMAT_DEFAULT, RESULTS_DIR
 )
-
-
-def control_output(results, cli_args):
-    OUTPUT_ACTIONS = {
-        OUTPUT_FORMAT_PRETTY: pretty_output,
-        OUTPUT_FORMAT_FILE: file_output,
-        OUTPUT_FORMAT_DEFAULT: default_output,
-    }
-    OUTPUT_ACTIONS.get(cli_args.output)(results, cli_args)
 
 
 def default_output(results, cli_args):
@@ -34,7 +25,7 @@ def pretty_output(results, cli_args):
 
 
 def file_output(results, cli_args):
-    results_dir = BASE_DIR / 'results'
+    results_dir = BASE_DIR / RESULTS_DIR
     results_dir.mkdir(exist_ok=True)
     parser_mode = cli_args.mode
     now = dt.datetime.now()
@@ -45,3 +36,14 @@ def file_output(results, cli_args):
         writer = csv.writer(f, dialect='unix')
         writer.writerows(results)
     logging.info(f'Файл с результатами был сохранён: {file_path}')
+
+
+OUTPUT_ACTIONS = {
+    OUTPUT_FORMAT_PRETTY: pretty_output,
+    OUTPUT_FORMAT_FILE: file_output,
+    OUTPUT_FORMAT_DEFAULT: default_output,
+}
+
+
+def control_output(results, cli_args):
+    OUTPUT_ACTIONS.get(cli_args.output)(results, cli_args)

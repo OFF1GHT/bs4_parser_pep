@@ -27,10 +27,7 @@ def find_tag(soup, tag, attrs=None):
 
 
 def get_soup(session, url):
-    response = get_response(session, url)
-    if response:
-        return BeautifulSoup(response.text, 'lxml')
-    return None
+    return BeautifulSoup(get_response(session, url).text, 'lxml')
 
 
 def find_elements(soup, expression, single_tag=False):
